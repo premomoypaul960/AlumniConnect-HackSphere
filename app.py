@@ -5,16 +5,55 @@ from google import genai
 from streamlit_option_menu import option_menu
 import time
 from datetime import date
+import base64
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="AlumniConnect", layout="wide")
 
-# --- SESSION STATE (LOGIN MEMORY) - MUST BE HERE! ---
+# --- SESSION STATE (LOGIN MEMORY) ---
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "user_info" not in st.session_state:
     st.session_state.user_info = None
 
+# --- WATERMARK BACKGROUND LOGO ---
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except FileNotFoundError:
+        return ""
+
+logo_b64 = get_base64_image("black logo.png")
+
+if logo_b64:
+    watermark_html = f"""
+    <style>
+    /* Force Streamlit's default background layers to be transparent */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
+        background-color: transparent !important;
+    }}
+    
+    /* Set a clean light background on the absolute bottom body layer */
+    body {{
+        background-color: #f4f6f9 !important;
+    }}
+
+    /* Inject the physical image and lock it in the center */
+    .watermark-img {{
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 450px; /* Adjust size here */
+        opacity: 0.06; /* 6% visibility */
+        z-index: -100; /* Forces it entirely behind your UI */
+        pointer-events: none; /* Prevents it from interfering with clicks */
+    }}
+    </style>
+    <img class="watermark-img" src="data:image/png;base64,{logo_b64}">
+    """
+    st.markdown(watermark_html, unsafe_allow_html=True)
 # --- CUSTOM CSS FOR MODERN UI & ANIMATIONS ---
 custom_css = """
 <style>
@@ -24,7 +63,7 @@ custom_css = """
     .viewerBadge_container {display: none !important;}
     [data-testid="stViewerBadge"] {display: none !important;}
     
-    /* 1. GLOBAL FADE-IN ANIMATION FOR ALL PAGES */
+    /* GLOBAL FADE-IN ANIMATION FOR ALL PAGES */
     @keyframes fadeUp {
         from { opacity: 0; transform: translateY(15px); }
         to { opacity: 1; transform: translateY(0); }
@@ -33,7 +72,7 @@ custom_css = """
         animation: fadeUp 0.6s ease-out;
     }
     
-    /* 2. HOVER LIFT EFFECT FOR CARDS */
+    /* HOVER LIFT EFFECT FOR CARDS */
     .hover-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -92,7 +131,6 @@ if not os.path.exists(DB_FILE):
     ])
     df.to_csv(DB_FILE, index=False)
 
-# AUTO-MIGRATE JOBS DB
 JOBS_DB_FILE = "jobs_db.csv"
 new_job_cols = {"Job Type": "Full-time", "Eligibility": "N/A", "Required Skills": "N/A", "Deadline": str(date.today())}
 
@@ -126,7 +164,8 @@ with st.sidebar:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         try:
-            st.image("logo.png", use_container_width=True)
+            # You can also change this one to "black logo.png" if you want the sidebar to match!
+            st.image("logo.png", use_container_width=True) 
         except FileNotFoundError:
             pass 
 
@@ -165,7 +204,6 @@ with st.sidebar:
 
 # --- PAGE: HOME ---
 if page == "Home":
-    # Redesigned Modern, Light Hero Section (Animated)
     st.markdown("""
         <div class="hover-card" style='text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%); border-radius: 15px; margin-bottom: 30px; border: 1px solid #BBDEFB; box-shadow: 0 4px 20px rgba(0,0,0,0.03);'>
             <h1 style='font-size: 3.2rem; margin-bottom: 10px; color: #0D47A1; font-weight: 800;'>AlumniConnect</h1>
@@ -176,7 +214,40 @@ if page == "Home":
         </div>
     """, unsafe_allow_html=True)
     
-    # Feature Cards (Animated)
+    # --- NEW LIVE STATS SECTION ---
+    st.markdown("<h3 style='text-align: center; color: #0D47A1; margin-bottom: 20px;'>Live Platform Impact</h3>", unsafe_allow_html=True)
+    
+    # Safely fetch live data from the CSV files
+    try:
+        users_df = pd.read_csv(DB_FILE)
+        alumni_count = len(users_df[users_df['Role'] == 'Alumni'])
+        student_count = len(users_df[users_df['Role'] == 'Student'])
+    except Exception:
+        alumni_count, student_count = 0, 0
+        
+    try:
+        jobs_df = pd.read_csv(JOBS_DB_FILE)
+        jobs_count = len(jobs_df)
+    except Exception:
+        jobs_count = 0
+        
+    try:
+        refs_df = pd.read_csv(REFERRALS_DB_FILE)
+        # Count referrals that have been accepted
+        refs_processed = len(refs_df[refs_df['Status'] == 'Referred'])
+    except Exception:
+        refs_processed = 0
+
+    # Display the metrics in 4 neat columns
+    col_stat1, col_stat2, col_stat3, col_stat4 = st.columns(4)
+    col_stat1.metric("Verified Alumni", alumni_count)
+    col_stat2.metric("Active Students", student_count)
+    col_stat3.metric("Live Opportunities", jobs_count)
+    col_stat4.metric("Successful Referrals", refs_processed)
+    
+    st.write("---")
+    
+    # --- FEATURE CARDS SECTION ---
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("""
@@ -205,13 +276,60 @@ if page == "Home":
 
 # --- PAGE: AUTHENTICATION ---
 elif page == "Login / Register":
-    st.title("🔐 Access Portal")
-    tab1, tab2 = st.tabs(["Login", "Create Account"])
+    
+    st.markdown("""
+        <style>
+        /* 1. Make the Login/Register Tabs Highly Visible */
+        div[data-testid="stTabs"] button[data-baseweb="tab"] {
+            font-size: 1.1rem !important;
+            font-weight: 700 !important;
+            color: #555555 !important;
+            padding: 15px 25px !important;
+            background-color: rgba(255, 255, 255, 0.5) !important;
+            border-radius: 8px 8px 0px 0px !important;
+            margin-right: 5px !important;
+        }
+        
+        /* 2. Style the Active (Selected) Tab to pop out */
+        div[data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"] {
+            color: #0D47A1 !important;
+            background-color: white !important;
+            border-top: 4px solid #0D47A1 !important;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05) !important;
+        }
+        
+        /* 3. Floating Animation for the Header Icon */
+        @keyframes floatIcon {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animated-icon {
+            display: inline-block;
+            animation: floatIcon 3s ease-in-out infinite;
+            font-size: 3.5rem;
+            margin-bottom: -15px; /* Pulled up to reduce space */
+        }
+        
+        /* 4. Pull the tabs closer to the header */
+        div[data-testid="stTabs"] {
+            margin-top: -10px !important;
+        }
+        </style>
+        
+        <div style="text-align: center; margin-bottom: 10px;">
+            <div class="animated-icon">🔐</div>
+            <h1 style="color: #0D47A1; margin-top: 10px; font-weight: 800; margin-bottom: 0px;">Access Portal</h1>
+            <p style="color: #555; font-size: 1.1rem; margin-top: 5px;">Login or create an account to enter the ecosystem.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    tab1, tab2 = st.tabs(["🔑 Secure Login", "✨ Create Account"])
     
     with tab1:
-        st.subheader("Login to your Workspace")
         login_email = st.text_input("College Email ID")
         login_pass = st.text_input("Password", type="password")
+        
         if st.button("Secure Login", use_container_width=True, type="primary"):
             df = pd.read_csv(DB_FILE)
             user = df[(df["Email"] == login_email) & (df["Password"] == login_pass)]
@@ -223,8 +341,8 @@ elif page == "Login / Register":
                 st.error("Invalid email or password.")
                 
     with tab2:
-        st.subheader("Register New Profile")
         department, projects, resume, company, job_role, industry, experience = "", "", "", "", "", "", ""
+        
         col1, col2 = st.columns(2)
         with col1:
             email = st.text_input("Official College Email ID", key="reg_email")
@@ -239,6 +357,7 @@ elif page == "Login / Register":
         role = "Student" if grad_year > current_year else "Alumni"
         
         if role == "Student":
+            st.info("🎓 **Student Profile Detected** (Based on Graduation Year)")
             col3, col4 = st.columns(2)
             with col3:
                 department = st.text_input("Department")
@@ -246,6 +365,7 @@ elif page == "Login / Register":
             with col4:
                 resume = st.text_input("Resume Link")
         else:
+            st.success("💼 **Alumni Profile Detected** (Based on Graduation Year)")
             col3, col4 = st.columns(2)
             with col3:
                 company = st.text_input("Current Company")
@@ -263,8 +383,6 @@ elif page == "Login / Register":
                 df_existing = pd.read_csv(DB_FILE)
                 pd.concat([df_existing, new_user], ignore_index=True).to_csv(DB_FILE, index=False)
                 st.success(f"🎉 Successfully registered as a **{role}**! Head to the Login tab.")
-
-
 # --- PAGE: MY WORKSPACE ---
 elif page == "My Workspace":
     user = st.session_state.user_info
