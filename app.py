@@ -139,12 +139,12 @@ with st.sidebar:
 
 # --- PAGE: HOME ---
 if page == "Home":
-    # Hero Section
+    # Redesigned Modern, Light Hero Section
     st.markdown("""
-        <div style='text-align: center; padding: 50px 20px; background-color: #0D47A1; border-radius: 15px; margin-bottom: 30px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);'>
-            <h1 style='font-size: 3rem; margin-bottom: 10px; color: white;'>AlumniConnect</h1>
-            <h3 style='font-weight: 300; color: #E0E0E0;'>The Official Opportunity Network for NIT Jamshedpur</h3>
-            <p style='font-size: 1.1rem; max-width: 600px; margin: 20px auto; color: #E0E0E0;'>
+        <div style='text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%); border-radius: 15px; margin-bottom: 30px; border: 1px solid #BBDEFB; box-shadow: 0 4px 20px rgba(0,0,0,0.03);'>
+            <h1 style='font-size: 3.2rem; margin-bottom: 10px; color: #0D47A1; font-weight: 800;'>AlumniConnect</h1>
+            <h3 style='font-weight: 500; color: #333333; margin-top: 0px;'>The Official Opportunity Network for NIT Jamshedpur</h3>
+            <p style='font-size: 1.15rem; max-width: 650px; margin: 20px auto; color: #555555; line-height: 1.6;'>
                 Bridge the gap between ambitious students and industry-leading alumni. Get verified referrals, land your dream job, and build a lasting legacy.
             </p>
         </div>
@@ -154,9 +154,9 @@ if page == "Home":
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("""
-        <div style='background-color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; border-top: 4px solid #2196F3;'>
-            <h3 style='color: #0D47A1;'>🎓 For Students</h3>
-            <ul style='font-size: 16px; color: #333; line-height: 1.8;'>
+        <div style='background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); height: 100%; border-top: 4px solid #0D47A1;'>
+            <h3 style='color: #0D47A1; margin-top: 0;'>🎓 For Students</h3>
+            <ul style='font-size: 16px; color: #444; line-height: 1.8; margin-bottom: 0;'>
                 <li><b>Discover Mentors:</b> Search the verified directory by industry.</li>
                 <li><b>Skip the Line:</b> Get direct job referrals to top companies.</li>
                 <li><b>AI Career Prep:</b> Optimize your resume in seconds.</li>
@@ -166,9 +166,9 @@ if page == "Home":
         
     with col2:
         st.markdown("""
-        <div style='background-color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; border-top: 4px solid #4CAF50;'>
-            <h3 style='color: #0D47A1;'>💼 For Alumni</h3>
-            <ul style='font-size: 16px; color: #333; line-height: 1.8;'>
+        <div style='background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); height: 100%; border-top: 4px solid #4CAF50;'>
+            <h3 style='color: #0D47A1; margin-top: 0;'>💼 For Alumni</h3>
+            <ul style='font-size: 16px; color: #444; line-height: 1.8; margin-bottom: 0;'>
                 <li><b>Give Back:</b> Guide the next generation of NIT engineers.</li>
                 <li><b>Smart Hiring:</b> Find top talent for your organization.</li>
                 <li><b>Gamified Giving:</b> Climb the leaderboard via contributions.</li>
