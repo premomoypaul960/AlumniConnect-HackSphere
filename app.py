@@ -69,12 +69,12 @@ custom_css = """
     }
     
     /* Style the Primary Buttons */
-    button[kind="primary"] {
+    button[data-testid="baseButton-primary"] {
         border-radius: 8px !important;
         font-weight: bold !important;
         transition: all 0.3s ease !important;
     }
-    button[kind="primary"]:hover {
+    button[data-testid="baseButton-primary"]:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
@@ -212,7 +212,7 @@ elif page == "Login / Register":
         st.subheader("Login to your Workspace")
         login_email = st.text_input("College Email ID")
         login_pass = st.text_input("Password", type="password")
-        if st.button("Secure Login", use_container_width=True, kind="primary"):
+        if st.button("Secure Login", use_container_width=True, type="primary"):
             df = pd.read_csv(DB_FILE)
             user = df[(df["Email"] == login_email) & (df["Password"] == login_pass)]
             if not user.empty:
@@ -255,7 +255,7 @@ elif page == "Login / Register":
                 experience = st.text_input("Years of Experience")
         
         st.write("---")
-        if st.button("🚀 Register Profile", use_container_width=True, kind="primary"):
+        if st.button("🚀 Register Profile", use_container_width=True, type="primary"):
             if "@" not in email or password == "":
                 st.error("Please provide a valid email and password!")
             else:
@@ -488,7 +488,7 @@ elif page == "AI Career Assistant":
     student_resume = st.text_area("Paste your current skills or resume text here:", value=st.session_state.user_info['Skills'])
     target_role = st.text_input("What job role or company are you targeting?")
     
-    if st.button("Generate Resume Optimization & Referral Message", kind="primary"):
+    if st.button("Generate Resume Optimization & Referral Message", type="primary"):
         if not api_key:
             st.error("Please enter your API Key first!")
         elif not student_resume or not target_role:
@@ -529,7 +529,7 @@ elif page == "Opportunity Portal":
                 
             posted_by = st.text_input("Your Email", value=st.session_state.user_info['Email'], disabled=True)
             
-            if st.button("Post Job", kind="primary"):
+            if st.button("Post Job", type="primary"):
                 if job_title and job_company:
                     new_job = pd.DataFrame([[job_title, job_company, posted_by, app_link, job_type, eligibility, req_skills, str(deadline)]], columns=jobs_df.columns)
                     pd.concat([jobs_df, new_job], ignore_index=True).to_csv(JOBS_DB_FILE, index=False)
@@ -642,7 +642,7 @@ elif page == "Review Referrals":
                     st.write("---")
                     col1, col2 = st.columns(2)
                     with col1:
-                        if st.button("✅ Accept & Refer", key=f"acc_{index}", use_container_width=True, kind="primary"):
+                        if st.button("✅ Accept & Refer", key=f"acc_{index}", use_container_width=True, type="primary"):
                             actual_index = my_requests.index[my_requests.index == index].tolist()[0]
                             refs_df.at[actual_index, 'Status'] = 'Referred'
                             refs_df.to_csv(REFERRALS_DB_FILE, index=False)
