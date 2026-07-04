@@ -7,10 +7,13 @@ from streamlit_option_menu import option_menu
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="AlumniConnect", layout="wide")
 
+# --- CUSTOM CSS TO HIDE STREAMLIT BRANDING & CLOUD BADGE ---
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
+            .viewerBadge_container {display: none;}
+            [data-testid="stViewerBadge"] {display: none;}
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
