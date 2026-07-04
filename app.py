@@ -366,16 +366,66 @@ elif page == "Opportunity Portal":
     else:
         st.info("No opportunities posted yet.")
 
+    # --- STUDENT REFERRAL TRACKER ---
+    if st.session_state.user_info['Role'] == 'Student':
+        st.write("---")
+        st.write("### 📊 My Referral Requests")
+        refs_df = pd.read_csv(REFERRALS_DB_FILE)
+        
+        my_apps = refs_df[refs_df["Applicant Email"] == st.session_state.user_info['Email']]
+        
+        if not my_apps.empty:
+            def color_status(val):
+                color = 'green' if val == 'Referred' else 'red' if val == 'Declined' else 'orange'
+                return f'color: {color}; font-weight: bold'
+            
+            styled_df = my_apps[["Job Title", "Alumni Email", "Status"]].style.map(color_status, subset=['Status'])
+            st.dataframe(styled_df, hide_index=True, use_container_width=True)
+        else:
+            st.info("You haven't requested any referrals yet.")
+
 
 # --- PAGE 5: REVIEW REFERRALS (ALUMNI ONLY) ---
 elif page == "Review Referrals":
-    st.title("📥 Review Referral Requests")
-    st.write("Review and manage incoming requests from students.")
+    st.title("📥 Manage Referral Requests")
+    st.write("Review student profiles and update their referral status.")
     
     refs_df = pd.read_csv(REFERRALS_DB_FILE)
+    users_df = pd.read_csv(DB_FILE)
+    
     my_requests = refs_df[refs_df["Alumni Email"] == st.session_state.user_info['Email']]
     
     if not my_requests.empty:
-        st.dataframe(my_requests[["Job Title", "Applicant Name", "Applicant Email", "Status"]], hide_index=True, use_container_width=True)
+        for index, row in my_requests.iterrows():
+            with st.expander(f"{row['Applicant Name']} - {row['Job Title']} | Status: {row['Status']}"):
+                
+                # Using iloc[0] assumes the student exists in the database
+                student_info = users_df[users_df["Email"] == row['Applicant Email']].iloc[0]
+                
+                colA, colB = st.columns(2)
+                with colA:
+                    st.write(f"**Applicant:** {student_info['Name']}")
+                    st.write(f"**Email:** {student_info['Email']}")
+                with colB:
+                    st.write(f"**Skills:** {student_info['Skills']}")
+                    st.write(f"**Resume Link:** {student_info['Resume']}")
+                
+                if row['Status'] == 'Pending':
+                    st.write("---")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button("✅ Accept & Refer", key=f"acc_{index}", use_container_width=True):
+                            actual_index = my_requests.index[my_requests.index == index].tolist()[0]
+                            refs_df.at[actual_index, 'Status'] = 'Referred'
+                            refs_df.to_csv(REFERRALS_DB_FILE, index=False)
+                            st.success("Status updated to Referred!")
+                            st.rerun()
+                    with col2:
+                        if st.button("❌ Decline", key=f"dec_{index}", use_container_width=True):
+                            actual_index = my_requests.index[my_requests.index == index].tolist()[0]
+                            refs_df.at[actual_index, 'Status'] = 'Declined'
+                            refs_df.to_csv(REFERRALS_DB_FILE, index=False)
+                            st.error("Request declined.")
+                            st.rerun()
     else:
         st.info("You have no pending referral requests at the moment.")
