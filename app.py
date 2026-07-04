@@ -9,17 +9,47 @@ from datetime import date
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="AlumniConnect", layout="wide")
 
-# --- CUSTOM CSS ---
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden !important;}
-            footer {visibility: hidden !important;}
-            .viewerBadge_container {display: none !important;}
-            [data-testid="stViewerBadge"] {display: none !important;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
-
+# --- CUSTOM CSS FOR MODERN UI ---
+custom_css = """
+<style>
+    /* Hide Streamlit Branding */
+    #MainMenu {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+    .viewerBadge_container {display: none !important;}
+    [data-testid="stViewerBadge"] {display: none !important;}
+    
+    /* Make Expanders look like modern cards */
+    div[data-testid="stExpander"] {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: none !important;
+        margin-bottom: 10px;
+    }
+    
+    /* Enhance the Analytics Dashboard Metrics */
+    div[data-testid="stMetric"] {
+        background-color: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border-left: 5px solid #0D47A1;
+    }
+    
+    /* Style the Primary Buttons */
+    button[kind="primary"] {
+        border-radius: 8px !important;
+        font-weight: bold !important;
+    }
+    
+    /* Clean up the tabs */
+    button[data-baseweb="tab"] {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+    }
+</style>
+"""
+st.markdown(custom_css, unsafe_allow_html=True)
 # --- SESSION STATE ---
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
