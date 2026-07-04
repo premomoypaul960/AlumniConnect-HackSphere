@@ -56,4 +56,4 @@ Make sure you have Python installed, then run:
 
 ## 👨‍💻 Author
 **Premomoy**  
-First-Year Electrical Engineering Student | NIT Jamshedpur
+Electrical Engineering Student | NIT Jamshedpur
