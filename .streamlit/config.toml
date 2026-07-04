@@ -1,0 +1,15 @@
+[theme]
+# Primary accent color for interactive elements (The NIT Jamshedpur Blue)
+primaryColor = "#0D47A1"
+
+# Background color for the main content area (Light premium gray)
+backgroundColor = "#F4F7F6"
+
+# Background color for the sidebar and most interactive widgets (Clean white)
+secondaryBackgroundColor = "#FFFFFF"
+
+# Text color (Soft black for better readability)
+textColor = "#1E1E1E"
+
+# Font style (sans serif looks the most modern)
+font = "sans serif"
