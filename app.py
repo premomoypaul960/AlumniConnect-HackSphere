@@ -356,6 +356,8 @@ elif page == "Opportunity Portal":
         for index, row in jobs_df.iterrows():
             with st.container():
                 st.info(f"**{row['Job Title']}** at **{row['Company']}**  \n*Posted by: {row['Posted By (Email)']}*  \nLink: {row['Application Link']}")
+                
+                # Student View: Request a referral
                 if st.session_state.user_info['Role'] == 'Student':
                     if st.button(f"Request Referral for {row['Job Title']}", key=f"req_{index}"):
                         refs_df = pd.read_csv(REFERRALS_DB_FILE)
@@ -363,6 +365,15 @@ elif page == "Opportunity Portal":
                                                columns=refs_df.columns)
                         pd.concat([refs_df, new_ref], ignore_index=True).to_csv(REFERRALS_DB_FILE, index=False)
                         st.success(f"Referral request sent to {row['Posted By (Email)']}!")
+                
+                # Alumni View: Manual Delete Button
+                elif st.session_state.user_info['Role'] == 'Alumni' and row['Posted By (Email)'] == st.session_state.user_info['Email']:
+                    if st.button("🗑️ Delete Opportunity", key=f"del_{index}"):
+                        # Drop the row by index and save
+                        jobs_df = jobs_df.drop(index)
+                        jobs_df.to_csv(JOBS_DB_FILE, index=False)
+                        st.success("Opportunity removed from the portal.")
+                        st.rerun()
     else:
         st.info("No opportunities posted yet.")
 
@@ -399,7 +410,6 @@ elif page == "Review Referrals":
         for index, row in my_requests.iterrows():
             with st.expander(f"{row['Applicant Name']} - {row['Job Title']} | Status: {row['Status']}"):
                 
-                # Using iloc[0] assumes the student exists in the database
                 student_info = users_df[users_df["Email"] == row['Applicant Email']].iloc[0]
                 
                 colA, colB = st.columns(2)
@@ -415,10 +425,18 @@ elif page == "Review Referrals":
                     col1, col2 = st.columns(2)
                     with col1:
                         if st.button("✅ Accept & Refer", key=f"acc_{index}", use_container_width=True):
+                            # Update the status for the student
                             actual_index = my_requests.index[my_requests.index == index].tolist()[0]
                             refs_df.at[actual_index, 'Status'] = 'Referred'
                             refs_df.to_csv(REFERRALS_DB_FILE, index=False)
-                            st.success("Status updated to Referred!")
+                            
+                            # AUTO-DELETE LOGIC: Remove the job from the portal so no one else applies
+                            jobs_df = pd.read_csv(JOBS_DB_FILE)
+                            mask = (jobs_df['Job Title'] == row['Job Title']) & (jobs_df['Posted By (Email)'] == st.session_state.user_info['Email'])
+                            jobs_df = jobs_df[~mask]
+                            jobs_df.to_csv(JOBS_DB_FILE, index=False)
+                            
+                            st.success("Status updated! The job posting has been automatically closed.")
                             st.rerun()
                     with col2:
                         if st.button("❌ Decline", key=f"dec_{index}", use_container_width=True):
