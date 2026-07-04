@@ -10,10 +10,11 @@ st.set_page_config(page_title="AlumniConnect", layout="wide")
 # --- CUSTOM CSS TO HIDE STREAMLIT BRANDING & CLOUD BADGE ---
 hide_st_style = """
             <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            .viewerBadge_container {display: none;}
-            [data-testid="stViewerBadge"] {display: none;}
+            #MainMenu {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
+            .viewerBadge_container {display: none !important;}
+            .viewerBadge_link {display: none !important;}
+            [data-testid="stViewerBadge"] {display: none !important;}
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
