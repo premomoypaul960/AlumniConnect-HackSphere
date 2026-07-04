@@ -139,17 +139,42 @@ with st.sidebar:
 
 # --- PAGE: HOME ---
 if page == "Home":
-    st.title("🎓 Welcome to AlumniConnect")
-    st.markdown("### The Official Network for NIT Jamshedpur")
-    st.write("Connect, grow, and succeed together. AlumniConnect bridges the gap between current students and successful alumni, creating a closed-loop ecosystem for referrals and mentorship.")
-    st.write("---")
+    # Hero Section
+    st.markdown("""
+        <div style='text-align: center; padding: 50px 20px; background-color: #0D47A1; border-radius: 15px; margin-bottom: 30px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);'>
+            <h1 style='font-size: 3rem; margin-bottom: 10px; color: white;'>AlumniConnect</h1>
+            <h3 style='font-weight: 300; color: #E0E0E0;'>The Official Opportunity Network for NIT Jamshedpur</h3>
+            <p style='font-size: 1.1rem; max-width: 600px; margin: 20px auto; color: #E0E0E0;'>
+                Bridge the gap between ambitious students and industry-leading alumni. Get verified referrals, land your dream job, and build a lasting legacy.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Feature Cards
     col1, col2 = st.columns(2)
     with col1:
-        st.info("#### For Students\n* 🔍 **Discover Alumni:** Find mentors in your target industry.\n* 💼 **Get Referrals:** Apply for exclusive job opportunities.\n* 🤖 **AI Career Assistant:** Optimize your resume instantly.")
+        st.markdown("""
+        <div style='background-color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; border-top: 4px solid #2196F3;'>
+            <h3 style='color: #0D47A1;'>🎓 For Students</h3>
+            <ul style='font-size: 16px; color: #333; line-height: 1.8;'>
+                <li><b>Discover Mentors:</b> Search the verified directory by industry.</li>
+                <li><b>Skip the Line:</b> Get direct job referrals to top companies.</li>
+                <li><b>AI Career Prep:</b> Optimize your resume in seconds.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
     with col2:
-        st.success("#### For Alumni\n* 🤝 **Give Back:** Guide the next generation of engineers.\n* 📢 **Post Opportunities:** Share jobs and referrals directly.\n* 🏆 **Climb the Leaderboard:** Earn points for your contributions.")
-
-
+        st.markdown("""
+        <div style='background-color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; border-top: 4px solid #4CAF50;'>
+            <h3 style='color: #0D47A1;'>💼 For Alumni</h3>
+            <ul style='font-size: 16px; color: #333; line-height: 1.8;'>
+                <li><b>Give Back:</b> Guide the next generation of NIT engineers.</li>
+                <li><b>Smart Hiring:</b> Find top talent for your organization.</li>
+                <li><b>Gamified Giving:</b> Climb the leaderboard via contributions.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
 # --- PAGE: AUTHENTICATION ---
 elif page == "Login / Register":
     st.title("🔐 Access Portal")
