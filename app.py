@@ -9,7 +9,7 @@ from datetime import date
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="AlumniConnect", layout="wide")
 
-# --- CUSTOM CSS FOR MODERN UI ---
+# --- CUSTOM CSS FOR MODERN UI & ANIMATIONS ---
 custom_css = """
 <style>
     /* Hide Streamlit Branding */
@@ -18,6 +18,24 @@ custom_css = """
     .viewerBadge_container {display: none !important;}
     [data-testid="stViewerBadge"] {display: none !important;}
     
+    /* 1. GLOBAL FADE-IN ANIMATION FOR ALL PAGES */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    div.block-container {
+        animation: fadeUp 0.6s ease-out;
+    }
+    
+    /* 2. HOVER LIFT EFFECT FOR CARDS */
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+    
     /* Make Expanders look like modern cards */
     div[data-testid="stExpander"] {
         background-color: white;
@@ -25,6 +43,10 @@ custom_css = """
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         border: none !important;
         margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+    div[data-testid="stExpander"]:hover {
+        box-shadow: 0 6px 12px rgba(13, 71, 161, 0.1);
     }
     
     /* Enhance the Analytics Dashboard Metrics */
@@ -34,27 +56,25 @@ custom_css = """
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         border-left: 5px solid #0D47A1;
+        transition: transform 0.3s ease;
+    }
+    div[data-testid="stMetric"]:hover {
+        transform: scale(1.03);
     }
     
     /* Style the Primary Buttons */
     button[kind="primary"] {
         border-radius: 8px !important;
         font-weight: bold !important;
+        transition: all 0.3s ease !important;
     }
-    
-    /* Clean up the tabs */
-    button[data-baseweb="tab"] {
-        font-size: 16px !important;
-        font-weight: 600 !important;
+    button[kind="primary"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 </style>
 """
 st.markdown(custom_css, unsafe_allow_html=True)
-# --- SESSION STATE ---
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "user_info" not in st.session_state:
-    st.session_state.user_info = None
 
 # --- DATABASES ---
 DB_FILE = "users_db.csv"
@@ -139,9 +159,9 @@ with st.sidebar:
 
 # --- PAGE: HOME ---
 if page == "Home":
-    # Redesigned Modern, Light Hero Section
+    # Redesigned Modern, Light Hero Section (Animated)
     st.markdown("""
-        <div style='text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%); border-radius: 15px; margin-bottom: 30px; border: 1px solid #BBDEFB; box-shadow: 0 4px 20px rgba(0,0,0,0.03);'>
+        <div class="hover-card" style='text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%); border-radius: 15px; margin-bottom: 30px; border: 1px solid #BBDEFB; box-shadow: 0 4px 20px rgba(0,0,0,0.03);'>
             <h1 style='font-size: 3.2rem; margin-bottom: 10px; color: #0D47A1; font-weight: 800;'>AlumniConnect</h1>
             <h3 style='font-weight: 500; color: #333333; margin-top: 0px;'>The Official Opportunity Network for NIT Jamshedpur</h3>
             <p style='font-size: 1.15rem; max-width: 650px; margin: 20px auto; color: #555555; line-height: 1.6;'>
@@ -150,11 +170,11 @@ if page == "Home":
         </div>
     """, unsafe_allow_html=True)
     
-    # Feature Cards
+    # Feature Cards (Animated)
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("""
-        <div style='background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); height: 100%; border-top: 4px solid #0D47A1;'>
+        <div class="hover-card" style='background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); height: 100%; border-top: 4px solid #0D47A1;'>
             <h3 style='color: #0D47A1; margin-top: 0;'>🎓 For Students</h3>
             <ul style='font-size: 16px; color: #444; line-height: 1.8; margin-bottom: 0;'>
                 <li><b>Discover Mentors:</b> Search the verified directory by industry.</li>
@@ -166,7 +186,7 @@ if page == "Home":
         
     with col2:
         st.markdown("""
-        <div style='background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); height: 100%; border-top: 4px solid #4CAF50;'>
+        <div class="hover-card" style='background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); height: 100%; border-top: 4px solid #4CAF50;'>
             <h3 style='color: #0D47A1; margin-top: 0;'>💼 For Alumni</h3>
             <ul style='font-size: 16px; color: #444; line-height: 1.8; margin-bottom: 0;'>
                 <li><b>Give Back:</b> Guide the next generation of NIT engineers.</li>
