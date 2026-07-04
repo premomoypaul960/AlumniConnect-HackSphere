@@ -17,38 +17,38 @@ if "user_info" not in st.session_state:
     st.session_state.user_info = None
 
 # --- WATERMARK BACKGROUND LOGO ---
-def get_base64_image(image_path):
+def get_base64_image(image_filename):
     try:
+        # This forces Python to look in the exact same folder as app.py
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(current_dir, image_filename)
+        
         with open(image_path, "rb") as img_file:
             return base64.b64encode(img_file.read()).decode()
     except FileNotFoundError:
         return ""
 
+# Ensure the name below perfectly matches the file on GitHub!
 logo_b64 = get_base64_image("black logo.png")
 
 if logo_b64:
     watermark_html = f"""
     <style>
-    /* Force Streamlit's default background layers to be transparent */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
         background-color: transparent !important;
     }}
-    
-    /* Set a clean light background on the absolute bottom body layer */
     body {{
         background-color: #f4f6f9 !important;
     }}
-
-    /* Inject the physical image and lock it in the center */
     .watermark-img {{
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 450px; /* Adjust size here */
-        opacity: 0.06; /* 6% visibility */
-        z-index: -100; /* Forces it entirely behind your UI */
-        pointer-events: none; /* Prevents it from interfering with clicks */
+        width: 450px; 
+        opacity: 0.06; 
+        z-index: -100; 
+        pointer-events: none; 
     }}
     </style>
     <img class="watermark-img" src="data:image/png;base64,{logo_b64}">
