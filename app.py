@@ -40,11 +40,11 @@ if not os.path.exists(JOBS_DB_FILE):
     df_jobs = pd.DataFrame(columns=["Job Title", "Company", "Posted By (Email)", "Application Link"])
     df_jobs.to_csv(JOBS_DB_FILE, index=False)
 
-# NEW: REFERRALS DATABASE
 REFERRALS_DB_FILE = "referrals_db.csv"
 if not os.path.exists(REFERRALS_DB_FILE):
     df_refs = pd.DataFrame(columns=["Job Title", "Applicant Name", "Applicant Email", "Alumni Email", "Status"])
     df_refs.to_csv(REFERRALS_DB_FILE, index=False)
+
 
 # --- DYNAMIC NAVIGATION MENU WITH SECURITY RULES ---
 with st.sidebar:
@@ -59,18 +59,15 @@ with st.sidebar:
     st.markdown("<p style='text-align: center; font-weight: bold;'>AlumniConnect Portal</p>", unsafe_allow_html=True)
     st.write("---")
 
-    # SECURITY ROUTING: Different menus for Students vs Alumni
     if st.session_state.logged_in:
         user_role = st.session_state.user_info['Role']
         
         if user_role == 'Student':
-            # Students get AI Assistant and Opportunity Portal (to request)
-            options = ["My Workspace", "Alumni Directory", "AI Career Assistant", "Opportunity Portal", "Logout"]
-            icons = ["person-badge", "search", "robot", "briefcase", "box-arrow-left"]
+            options = ["My Workspace", "Network Directory", "AI Career Assistant", "Opportunity Portal", "Logout"]
+            icons = ["person-badge", "people", "robot", "briefcase", "box-arrow-left"]
         else:
-            # Alumni get Opportunity Portal (to post) and Review Referrals
-            options = ["My Workspace", "Alumni Directory", "Opportunity Portal", "Review Referrals", "Logout"]
-            icons = ["person-badge", "search", "briefcase", "envelope-paper", "box-arrow-left"]
+            options = ["My Workspace", "Network Directory", "Opportunity Portal", "Review Referrals", "Logout"]
+            icons = ["person-badge", "people", "briefcase", "envelope-paper", "box-arrow-left"]
     else:
         options = ["Login / Register"]
         icons = ["box-arrow-in-right"]
@@ -162,6 +159,7 @@ if page == "Login / Register":
                 df_updated.to_csv(DB_FILE, index=False)
                 st.success(f"🎉 Successfully registered as a **{role}**! Head to the Login tab.")
 
+
 # --- PAGE 1: MY WORKSPACE (MANAGE PROFILE) ---
 elif page == "My Workspace":
     user = st.session_state.user_info
@@ -193,10 +191,9 @@ elif page == "My Workspace":
             st.success(f"**Industry:** {user['Industry']}")
             st.success(f"**Experience:** {user['Experience']}")
 
-    # --- SECURITY RULE: MANAGE PROFILE FEATURE ---
     st.write("---")
     with st.expander("✏️ Manage & Update Profile"):
-        st.write("Update your details below[cite: 1].")
+        st.write("Update your details below.")
         new_skills = st.text_input("Update Skills", value=user['Skills'])
         
         if user['Role'] == 'Student':
@@ -210,7 +207,6 @@ elif page == "My Workspace":
             df = pd.read_csv(DB_FILE)
             idx = df.index[df['Email'] == user['Email']].tolist()[0]
             
-            # Update values
             df.at[idx, 'Skills'] = new_skills
             if user['Role'] == 'Student':
                 df.at[idx, 'Projects'] = new_proj
@@ -220,11 +216,10 @@ elif page == "My Workspace":
                 df.at[idx, 'JobRole'] = new_role
                 
             df.to_csv(DB_FILE, index=False)
-            
-            # Update session state so UI refreshes immediately
             st.session_state.user_info = df.iloc[idx].to_dict()
             st.success("Profile updated successfully!")
             st.rerun()
+
 
 # --- LOGOUT LOGIC ---
 elif page == "Logout":
@@ -232,25 +227,58 @@ elif page == "Logout":
     st.session_state.user_info = None
     st.rerun()
 
-# --- PAGE 2: ALUMNI DIRECTORY ---
-elif page == "Alumni Directory":
-    st.title("🔍 Alumni Discovery")
+
+# --- PAGE 2: NETWORK DIRECTORY ---
+elif page == "Network Directory":
+    st.title("🌐 Network Directory")
+    st.markdown("Discover and connect with verified Alumni and Students.")
     
     df = pd.read_csv(DB_FILE)
-    alumni_df = df[df["Role"] == "Alumni"]
     
-    tab1, tab2 = st.tabs(["🔎 Search Network", "🏆 Top Contributors"])
+    tab1, tab2, tab3 = st.tabs(["💼 Alumni Profiles", "🎓 Student Profiles", "🏆 Top Contributors"])
     
     with tab1:
-        search_query = st.text_input("Search by Company, Role, Industry, or Skill:")
-        if search_query:
-            mask = alumni_df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)
-            results = alumni_df[mask]
-            st.dataframe(results[["Name", "Company", "JobRole", "Industry", "Skills", "Email"]], hide_index=True, use_container_width=True)
-        else:
-            st.dataframe(alumni_df[["Name", "Company", "JobRole", "Industry", "Skills", "Email"]], hide_index=True, use_container_width=True)
+        search_alumni = st.text_input("Search Alumni by Name, Company, or Skill:")
+        alumni_df = df[df["Role"] == "Alumni"]
+        
+        if search_alumni:
+            mask = alumni_df.apply(lambda row: row.astype(str).str.contains(search_alumni, case=False).any(), axis=1)
+            alumni_df = alumni_df[mask]
             
+        st.write(f"Found **{len(alumni_df)}** Alumni")
+        
+        for index, row in alumni_df.iterrows():
+            with st.expander(f"👤 {row['Name']} | {row['JobRole']} at {row['Company']}"):
+                colA, colB = st.columns(2)
+                with colA:
+                    st.write(f"**Email:** {row['Email']}")
+                    st.write(f"**Class of:** {row['GradYear']}")
+                with colB:
+                    st.write(f"**Industry:** {row['Industry']}")
+                    st.write(f"**Experience:** {row['Experience']}")
+                st.write(f"**Core Skills:** {row['Skills']}")
+
     with tab2:
+        search_students = st.text_input("Search Students by Name, Department, or Skill:")
+        student_df = df[df["Role"] == "Student"]
+        
+        if search_students:
+            mask = student_df.apply(lambda row: row.astype(str).str.contains(search_students, case=False).any(), axis=1)
+            student_df = student_df[mask]
+            
+        st.write(f"Found **{len(student_df)}** Students")
+        
+        for index, row in student_df.iterrows():
+            with st.expander(f"🎓 {row['Name']} | {row['Department']} (Class of {row['GradYear']})"):
+                colA, colB = st.columns(2)
+                with colA:
+                    st.write(f"**Email:** {row['Email']}")
+                    st.write(f"**Core Skills:** {row['Skills']}")
+                with colB:
+                    st.write(f"**Key Projects:** {row['Projects']}")
+                    st.write(f"**Resume Link:** {row['Resume']}")
+                    
+    with tab3:
         st.markdown("🥇 **Top Alumni Leaderboard**")
         jobs_df = pd.read_csv(JOBS_DB_FILE)
         
@@ -267,6 +295,7 @@ elif page == "Alumni Directory":
                 rank += 1
         else:
             st.write("No contributions yet.")
+
 
 # --- PAGE 3: AI CAREER ASSISTANT (STUDENTS ONLY) ---
 elif page == "AI Career Assistant":
@@ -297,6 +326,7 @@ elif page == "AI Career Assistant":
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
+
 # --- PAGE 4: OPPORTUNITY PORTAL ---
 elif page == "Opportunity Portal":
     st.title("💼 Referral & Opportunity Portal")
@@ -304,7 +334,6 @@ elif page == "Opportunity Portal":
     users_df = pd.read_csv(DB_FILE)
     jobs_df = pd.read_csv(JOBS_DB_FILE)
     
-    # SECURITY RULE: Only Alumni can post opportunities
     if st.session_state.user_info['Role'] == 'Alumni':
         with st.expander("📌 Post a New Opportunity"):
             job_title = st.text_input("Job Title")
@@ -324,7 +353,6 @@ elif page == "Opportunity Portal":
     
     st.write("### Current Openings")
     if not jobs_df.empty:
-        # SECURITY RULE: Students can request referrals
         for index, row in jobs_df.iterrows():
             with st.container():
                 st.info(f"**{row['Job Title']}** at **{row['Company']}**  \n*Posted by: {row['Posted By (Email)']}*  \nLink: {row['Application Link']}")
@@ -334,17 +362,17 @@ elif page == "Opportunity Portal":
                         new_ref = pd.DataFrame([[row['Job Title'], st.session_state.user_info['Name'], st.session_state.user_info['Email'], row['Posted By (Email)'], "Pending"]], 
                                                columns=refs_df.columns)
                         pd.concat([refs_df, new_ref], ignore_index=True).to_csv(REFERRALS_DB_FILE, index=False)
-                        st.success(f"Referral request sent to {row['Posted By (Email)']}![cite: 1]")
+                        st.success(f"Referral request sent to {row['Posted By (Email)']}!")
     else:
         st.info("No opportunities posted yet.")
+
 
 # --- PAGE 5: REVIEW REFERRALS (ALUMNI ONLY) ---
 elif page == "Review Referrals":
     st.title("📥 Review Referral Requests")
-    st.write("Review and manage incoming requests from students[cite: 1].")
+    st.write("Review and manage incoming requests from students.")
     
     refs_df = pd.read_csv(REFERRALS_DB_FILE)
-    # Filter only requests sent to this specific logged-in Alumni
     my_requests = refs_df[refs_df["Alumni Email"] == st.session_state.user_info['Email']]
     
     if not my_requests.empty:
