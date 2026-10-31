@@ -55,5 +55,5 @@ Make sure you have Python installed, then run:
 `streamlit run app.py`
 
 ## 👨‍💻 Author
-**Premomoy Paul**  
+**Premomoy**  
 Electrical Engineering Student | NIT Jamshedpur
